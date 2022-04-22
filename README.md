@@ -24,7 +24,7 @@ Tired of pressing F2, typing "custom tables" and hitting enter? ✋
 
 The shortcuts bar adds your dashboard tiles to a navigation bar. By holding down Ctrl and clicking items, you can easily open applications in a new tab.
 
-The shortcuts bar is baed on the tiles on your dashboard.
+The shortcuts bar is based on the tiles on your dashboard.
 
 ![image](https://user-images.githubusercontent.com/6457851/164612800-a3b94aaf-5cbf-4836-a17c-0dfc38b0f2fb.png)
 
