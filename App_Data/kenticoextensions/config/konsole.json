@@ -1,0 +1,28 @@
+{
+  "commandShortcuts": [
+	  { 
+		"shortcut": "saf user",
+		"command": "eq select * from cms_user"
+	  },
+	  { 
+		"shortcut": "cct",
+		"command": "ls ct -codename custom."
+	  }
+  ],
+  "queries": [
+    {
+      "key": "sse",
+      "description": "Staging Errors",
+      "query": "select top 10 T.TaskTitle, T.TaskType, T.TaskObjectType, S.SynchronizationLastRun, S.SynchronizationErrorMessage from Staging_Synchronization S inner join Staging_Task T ON S.SynchronizationTaskID = T.TaskID where S.SynchronizationErrorMessage is not null order by S.SynchronizationLastRun desc"
+    }
+  ],
+  "endpoints": [
+    {
+      "command": "ee",
+      "parameters": "",
+      "description": "Example Endpoint",
+      "restriction": "",
+      "endpoint": "/api/example"
+    }
+  ]
+}

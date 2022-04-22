@@ -1,0 +1,10 @@
+{
+  "Environments": [
+	{ "URL": "*.local", "Label": "LCL", "Color": "Fuchsia" },
+	{ "URL": "*devcms.com", "Label": "DEV", "Color": "limegreen" },
+	{ "URL": "*tstcms.com", "Label": "TST", "Color": "cyan" },
+	{ "URL": "*precms.com", "Label": "PRE", "Color": "orange" },
+	{ "URL": "*stgcms.com", "Label": "STG", "Color": "steelblue" },
+	{ "URL": "*prdcms.com", "Label": "PRD", "Color": "red" }
+  ]
+}

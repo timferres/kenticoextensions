@@ -1,0 +1,60 @@
+{
+  "Enabled": true,
+  "ConsoleLogging": false,
+  "CacheListRefreshFrequency": 10,
+  "EnabledUserNames": [],
+  "DisabledUserNames": [],
+  "Extensions": [
+    {
+      "Name": "Environment Bar",
+      "Code": "eb",
+      "Enabled": true,
+      "ConsoleLogging": false,
+      "ConfigPath": "\\App_Data\\kenticoextensions\\config\\environment_bar.json"
+    },
+    {
+      "Name": "Shortcuts Bar",
+      "Code": "sb",
+      "Enabled": true,
+      "ConsoleLogging": false
+    },
+    {
+      "Name": "Media Selector",
+      "Code": "ms",
+      "Enabled": true,
+      "ConsoleLogging": false
+    },
+    {
+      "Name": "Staging Task User Filter",
+      "Code": "stuf",
+      "Enabled": true,
+      "ConsoleLogging": false,
+      "ConfigPath": "\\App_Data\\kenticoextensions\\config\\stuf.json"
+    },
+    {
+      "Name": "UI Restriction",
+      "Code": "uir",
+      "Enabled": true,
+      "ConsoleLogging": false
+    },
+    {
+      "Name": "Tree Information",
+      "Code": "ti",
+      "Enabled": true,
+      "ConsoleLogging": false
+    },
+    {
+      "Name": "Document Information",
+      "Code": "di",
+      "Enabled": true,
+      "ConsoleLogging": false
+    },
+    {
+      "Name": "Konsole",
+      "Code": "ko",
+      "Enabled": true,
+      "ConsoleLogging": false,
+      "ConfigPath": "\\App_Data\\kenticoextensions\\config\\konsole.json"
+    }
+  ]
+}
