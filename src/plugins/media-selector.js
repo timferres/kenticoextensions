@@ -7,23 +7,21 @@ import { ke_getQueryStringValue } from '../utilities/url';
 Extension: Media Selector (ms)
 Description: Adds the selected images dimensions and file size as a label next to the thumbnail
 */
-document.addEventListener('ke_init_complete', ke_ms_init, false);
+document.addEventListener('ke_init_complete', initialize, false);
 
-async function ke_ms_init() {
-  var mediaSelectors = document.querySelectorAll('.media-selector-image');
-  if (mediaSelectors.length == 0) {
+async function initialize() {
+  const mediaSelectors = document.querySelectorAll('.media-selector-image');
+  if (!mediaSelectors.length) {
     return;
   }
 
-  ke_log('init start', true);
-
-  var extConfig = ke_getExtensionConfiguration('ms');
+  const extConfig = ke_getExtensionConfiguration('ms');
 
   if (!extConfig.Enabled) {
     return;
   }
 
-  var mutationObserver = new MutationObserver(function (mutations) {
+  const mutationObserver = new MutationObserver(function (mutations) {
     mutations.forEach(function (mutation) {
       if (
         mutation.addedNodes.length == 1 &&
@@ -35,26 +33,32 @@ async function ke_ms_init() {
     });
   });
 
-  for (var i = 0; i < mediaSelectors.length; i++) {
-    var ms = mediaSelectors[i];
+  for (const i = 0; i < mediaSelectors.length; i++) {
+    const ms = mediaSelectors[i];
+
     await ke_ms_addImageSizeLabel(ms);
+
     mutationObserver.observe(ms, { childList: true });
-    ke_log('appending information to media selector: ' + ms.id, true);
   }
 }
 
+/**
+ *
+ * @param {HTMLElement} ms
+ * @returns {Promise<void>}
+ */
 async function ke_ms_addImageSizeLabel(ms) {
   ms = ms.parentNode;
-  var msinput = ms.querySelectorAll('input')[0];
-  var imageurl = msinput.value;
-  var msimage = ms.querySelectorAll('img')[0];
+  const msinput = ms.querySelectorAll('input')[0];
+  const imageurl = msinput.value;
+  let msimage = ms.querySelectorAll('img')[0];
   if (!msimage) {
     return;
   }
 
-  var fileguid = imageurl.substr(imageurl.indexOf('getmedia/') + 9, 36);
-  var width = ke_getQueryStringValue('width', imageurl);
-  var height = ke_getQueryStringValue('height', imageurl);
+  const fileguid = imageurl.substr(imageurl.indexOf('getmedia/') + 9, 36);
+  const width = ke_getQueryStringValue('width', imageurl);
+  const height = ke_getQueryStringValue('height', imageurl);
 
   const mediafile = await get({
     data: 'mediafileinfo',
@@ -63,19 +67,22 @@ async function ke_ms_addImageSizeLabel(ms) {
     height,
   });
 
-  var imagedimensions = mediaFile.Width + 'x' + mediaFile.Height;
-  var labeltext = imagedimensions + ' (' + ke_formatBytes(mediaFile.Size) + ')';
+  const imagedimensions = mediafile.Width + 'x' + mediafile.Height;
+  const labeltext =
+    imagedimensions + ' (' + ke_formatBytes(mediafile.Size) + ')';
 
-  var msimage = document.querySelectorAll(`img[src*="${mediaFile.GUID}"]`)[0]
+  msimage = document.querySelectorAll(`img[src*="${mediafile.GUID}"]`)[0]
     .parentNode;
 
-  var mslabel;
-  if (msimage.querySelectorAll('.ke-ms-label').length > 0) {
-    mslabel = msimage.querySelectorAll('.ke-ms-label')[0];
-  }
+  const allLabels = msimage.querySelectorAll('.ke-ms-label');
+
+  const mslabel =
+    allLabels.length > 0
+      ? msimage.querySelectorAll('.ke-ms-label')[0]
+      : undefined;
 
   // use create element and append to dom
-  if (mslabel != undefined) {
+  if (mslabel) {
     mslabel.innerHTML = labeltext;
   } else {
     msimage.innerHTML += `&nbsp<div class="ke-ms-label" title="Information provided by Kentico Extensions :)">${labeltext}</div>`;

@@ -4,15 +4,15 @@ import { ke_getExtensionConfiguration } from '../infrastructure/config';
 Extension: Environment Bar (eb)
 Description: Adds a coloured bar to indicate the current environment
 */
-document.addEventListener('ke_init_complete', ke_eb_init, false);
+document.addEventListener('ke_init_complete', initialize, false);
 
-function ke_eb_init() {
-  var masterContainer = document.querySelectorAll('.CMSDeskContent')[0];
+function initialize() {
+  const masterContainer = document.querySelectorAll('.CMSDeskContent')[0];
   if (!masterContainer) {
     return;
   }
 
-  var extConfig = ke_getExtensionConfiguration('eb');
+  const extConfig = ke_getExtensionConfiguration('eb');
 
   if (!extConfig.Enabled) {
     return;
@@ -22,19 +22,19 @@ function ke_eb_init() {
     return;
   }
 
-  var envConfig = ke_eb_getEnvConfig(extConfig);
+  const envConfig = ke_eb_getEnvConfig(extConfig);
 
-  if (envConfig == undefined) {
+  if (!envConfig) {
     return;
   }
 
-  var envbar = document.createElement('div');
+  const envbar = document.createElement('div');
   envbar.id = 'ke-eb';
   envbar.className = 'ke-eb fullwidth';
   envbar.style.backgroundColor = envConfig.Color;
   masterContainer.parentNode.insertBefore(envbar, masterContainer);
 
-  var envbarlabel = document.createElement('div');
+  const envbarlabel = document.createElement('div');
   envbarlabel.id = 'ke-eb label';
   envbarlabel.className = 'ke-eb label';
   envbarlabel.style.backgroundColor = envConfig.Color;
@@ -43,10 +43,10 @@ function ke_eb_init() {
 }
 
 function ke_eb_getEnvConfig(ebConfig) {
-  var envConfig = ebConfig.Config;
-  var currentURL = window.location.hostname;
-  for (var i = 0; i < envConfig.Environments.length; i++) {
-    var configURL = envConfig.Environments[i].URL;
+  const envConfig = ebConfig.Config;
+  const currentURL = window.location.hostname;
+  for (const i = 0; i < envConfig.Environments.length; i++) {
+    const configURL = envConfig.Environments[i].URL;
     if (configURL == currentURL) {
       return envConfig.Environments[i];
     }

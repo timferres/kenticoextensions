@@ -1,14 +1,18 @@
+const { ke_getExtensionConfiguration } = require('../infrastructure/config');
+
 /*
 Extension: Staging Task User Filter (stuf)
 Description: Adds a user filter and column to the staging task list
 */
-var ke_stuf_initalised = false;
-var ke_stuf_userColumnLoaded = false;
-var ke_stuf_userFilterLoaded = false;
-document.addEventListener('ke_init_complete', ke_stuf_init, false);
+const ke_stuf_initalised = false;
+const ke_stuf_userColumnLoaded = false;
+const ke_stuf_userFilterLoaded = false;
+document.addEventListener('ke_init_complete', initialize, false);
 
-function ke_stuf_init() {
-  if (ke_stuf_initalised === true) return;
+function initialize() {
+  if (ke_stuf_initalised) {
+    return;
+  }
 
   // detect if the current page is a staging task list
   if (
@@ -23,26 +27,19 @@ function ke_stuf_init() {
     ) == -1 &&
     window.location.href.indexOf('/CMSModules/Staging/Tools/Data/Tasks.aspx') ==
       -1
-  )
+  ) {
     return;
-
+  }
   // Possibly only show filter if all items are shown
   // Filter does not work well with pagination
   /*
-    var itemsPerPageSelect = document.querySelectorAll("select[id$='drpPageSize']")[0];
-    var itemsPerPageValue = itemsPerPageSelect[itemsPerPageSelect.selectedIndex].value;
+    const itemsPerPageSelect = document.querySelectorAll("select[id$='drpPageSize']")[0];
+    const itemsPerPageValue = itemsPerPageSelect[itemsPerPageSelect.selectedIndex].value;
     if (itemsPerPageValue != -1) { return; }
     */
 
-  ke_log('init start');
-
-  var extConfig = ke_getExtensionConfiguration('stuf');
-  if (extConfig == undefined) {
-    ke_log('configuration not found');
-    return;
-  }
-
-  if (extConfig.Enabled == false) {
+  const extConfig = ke_getExtensionConfiguration('stuf');
+  if (!extConfig?.Enabled) {
     return;
   }
 
@@ -54,39 +51,38 @@ function ke_stuf_init() {
     ke_stuf_endRequestHandler
   );
 
-  ke_log('init complete');
   ke_stuf_initalised = true;
 }
 
 function ke_stuf_initUserColumn(refreshData) {
-  var serverSelect = document.querySelectorAll(
+  const serverSelect = document.querySelectorAll(
     "select[id$='drpSingleSelect']"
   )[0];
-  var serverid = serverSelect.options[serverSelect.selectedIndex].value;
-  var qsParams = 'data=stagingtasks&serverid=' + serverid;
+  const serverid = serverSelect.options[serverSelect.selectedIndex].value;
+  const qsParams = 'data=stagingtasks&serverid=' + serverid;
   ke_getAPIDataAsync(qsParams, refreshData, ke_stuf_addUserColumn, true);
 }
 
 function ke_stuf_addUserColumn(taskData) {
   //get table
   //iterate each row and add th or td
-  var taskTable = document.querySelector("table[id^='m_c_']");
-  var taskTitleCol = taskTable.getElementsByTagName('th')[2];
-  var headerCol = document.createElement('th');
+  const taskTable = document.querySelector("table[id^='m_c_']");
+  const taskTitleCol = taskTable.querySelectorAll('th')[2];
+  const headerCol = document.createElement('th');
   headerCol.innerHTML = 'User';
   taskTitleCol.insertAdjacentElement('afterend', headerCol);
 
-  var taskTableRows = taskTable.getElementsByTagName('tr');
-  var currentTaskID = 0;
-  var titleCol;
-  var currentInput;
-  for (var i = 1; i < taskTableRows.length; i++) {
-    currentInput = taskTableRows[i].getElementsByTagName('input')[0];
+  const taskTableRows = taskTable.querySelectorAll('tr');
+  const currentTaskID = 0;
+  let titleCol;
+  let currentInput;
+  for (const i = 1; i < taskTableRows.length; i++) {
+    currentInput = taskTableRows[i].querySelectorAll('input')[0];
     currentTaskID = currentInput.getAttribute('data-arg');
     currentTaskID = Number(currentTaskID);
-    titleCol = taskTableRows[i].getElementsByTagName('td')[2];
-    var userCol = document.createElement('td');
-    var taskRecord = ke_stuf_getTaskByTaskID(taskData, currentTaskID);
+    titleCol = taskTableRows[i].querySelectorAll('td')[2];
+    const userCol = document.createElement('td');
+    const taskRecord = ke_stuf_getTaskByTaskID(taskData, currentTaskID);
     if (taskRecord == undefined) {
       userCol.innerHTML = '&nbsp;';
       titleCol.insertAdjacentElement('afterend', userCol);
@@ -104,7 +100,7 @@ function ke_stuf_addUserColumn(taskData) {
 }
 
 function ke_stuf_getTaskByTaskID(taskData, taskID) {
-  for (var i = 0; i < taskData.length; i++) {
+  for (const i = 0; i < taskData.length; i++) {
     if (taskData[i].TaskID == taskID) {
       return taskData[i];
     }
@@ -112,49 +108,49 @@ function ke_stuf_getTaskByTaskID(taskData, taskID) {
 }
 
 function ke_stuf_initUserFilter(refreshData) {
-  var serverSelect = document.querySelectorAll(
+  const serverSelect = document.querySelectorAll(
     "select[id$='drpSingleSelect']"
   )[0];
-  var serverid = serverSelect.options[serverSelect.selectedIndex].value;
-  var qsParams = 'data=stagingusers&serverid=' + serverid;
+  const serverid = serverSelect.options[serverSelect.selectedIndex].value;
+  const qsParams = 'data=stagingusers&serverid=' + serverid;
   ke_getAPIDataAsync(qsParams, refreshData, ke_stuf_addUserFilter, true);
 }
 
 function ke_stuf_addUserFilter(userData) {
-  var panelContainer = document.getElementById('m_pnlContainer');
+  const panelContainer = document.getElementById('m_pnlContainer');
   if (panelContainer === null) {
     return;
   }
 
-  var userPanel = document.createElement('div');
+  const userPanel = document.createElement('div');
   userPanel.id = 'm_pnlUserSelector';
   userPanel.className = 'header-panel';
   userPanel.style = 'padding: 8px 16px 8px 16px';
 
-  var userFilterContainer = document.createElement('div');
+  const userFilterContainer = document.createElement('div');
   userFilterContainer.className =
     'form-horizontal form-filter user-selector ke-stuf-filter-container';
   userFilterContainer.style = 'float: right';
 
-  var userLabel = document.createElement('div');
+  const userLabel = document.createElement('div');
   userLabel.className = 'filter-form-label-cell';
   userLabel.innerHTML =
     '<span id="usersLabel" class="control-label">User:</span>';
 
-  var userFilter = document.createElement('div');
+  const userFilter = document.createElement('div');
   userFilter.className = 'filter-form-value-cell-wide';
 
-  var userSelect = document.createElement('select');
+  const userSelect = document.createElement('select');
   userSelect.id = 'kentico-extensions-user-filter';
   userSelect.className = 'DropDownField form-control';
 
-  var optAll = document.createElement('option');
+  const optAll = document.createElement('option');
   optAll.value = 0;
   optAll.innerHTML = 'All';
   userSelect.appendChild(optAll);
 
-  for (var i = 0; i < userData.length; i++) {
-    var opt = document.createElement('option');
+  for (const i = 0; i < userData.length; i++) {
+    const opt = document.createElement('option');
     opt.value = userData[i].UserID;
     opt.innerHTML = userData[i].UserFullName;
     userSelect.appendChild(opt);
@@ -168,7 +164,7 @@ function ke_stuf_addUserFilter(userData) {
   userPanel.appendChild(userFilterContainer);
 
   // if actions does not exist add it for styling
-  var actionsPanel = document.createElement('div');
+  const actionsPanel = document.createElement('div');
   actionsPanel.id = 'm_pnlActions';
   actionsPanel.className = 'cms-edit-menu';
 
@@ -182,7 +178,7 @@ function ke_stuf_addUserFilter(userData) {
 
   ke_stuf_userFilterLoaded = true;
 
-  var contentPanel = document.getElementById('m_pnlContent');
+  const contentPanel = document.getElementById('m_pnlContent');
   if (contentPanel === null) {
     return;
   }
@@ -190,20 +186,20 @@ function ke_stuf_addUserFilter(userData) {
 }
 
 function ke_stuf_addSelectAllCheckBox() {
-  var kenticoSelectAllCheckbox = document.querySelector(
+  const kenticoSelectAllCheckbox = document.querySelector(
     "input[id$='headerBox']"
   );
   if (kenticoSelectAllCheckbox == null) {
     return;
   }
 
-  var customSelectAllCheckbox = document.createElement('input');
+  const customSelectAllCheckbox = document.createElement('input');
   customSelectAllCheckbox.id = 'kentico-extensions-select-all';
   customSelectAllCheckbox.type = 'checkbox';
   customSelectAllCheckbox.disabled = true;
   customSelectAllCheckbox.addEventListener('click', ke_stuf_selectAll, false);
 
-  var customSelectAllCheckboxLabel = document.createElement('label');
+  const customSelectAllCheckboxLabel = document.createElement('label');
   customSelectAllCheckboxLabel.id = 'kentico-extensions-select-all-label';
   customSelectAllCheckboxLabel.htmlFor = 'kentico-extensions-select-all';
   customSelectAllCheckboxLabel.style.display = 'none';
@@ -226,38 +222,38 @@ function ke_stuf_refreshFilter() {
 }
 
 function ke_stuf_applyFilter() {
-  var userSelect = document.getElementById('kentico-extensions-user-filter');
-  var selectedUserID = userSelect.selectedOptions[0].value;
+  const userSelect = document.querySelector('#kentico-extensions-user-filter');
+  const selectedUserID = userSelect.selectedOptions[0].value;
 
   if (selectedUserID != 0) {
     document.querySelector("input[id$='headerBox']").checked = false;
     document.querySelector("input[id$='headerBox']").disabled = true;
     document.querySelector('label[for*="headerBox"').style.display = 'none';
-    document.getElementById('kentico-extensions-select-all').disabled = false;
-    document.getElementById(
-      'kentico-extensions-select-all-label'
+    document.querySelector('#kentico-extensions-select-all').disabled = false;
+    document.querySelector(
+      '#kentico-extensions-select-all-label'
     ).style.display = '';
-    document.getElementById('m_c_btnSyncAll').disabled = true;
-    document.getElementById('m_c_btnDeleteAll').disabled = true;
+    document.querySelector('#m_c_btnSyncAll').disabled = true;
+    document.querySelector('#m_c_btnDeleteAll').disabled = true;
   } else {
     document.querySelector("input[id$='headerBox']").disabled = false;
     document.querySelector('label[for*="headerBox"').style.display = '';
-    document.getElementById('kentico-extensions-select-all').disabled = true;
-    document.getElementById(
-      'kentico-extensions-select-all-label'
+    document.querySelector('#kentico-extensions-select-all').disabled = true;
+    document.querySelector(
+      '#kentico-extensions-select-all-label'
     ).style.display = 'none';
-    document.getElementById('m_c_btnSyncAll').disabled = false;
-    document.getElementById('m_c_btnDeleteAll').disabled = false;
+    document.querySelector('#m_c_btnSyncAll').disabled = false;
+    document.querySelector('#m_c_btnDeleteAll').disabled = false;
   }
 
   //iterate each row, if not assigned to user, hide the row
-  var taskTable = document.querySelector("table[id^='m_c_']");
-  var taskTableRows = taskTable.getElementsByTagName('tr');
-  var currentUserID = 0;
-  var currentInput;
-  var visibleRows = 0;
-  var selectedRows = 0;
-  for (var i = 1; i < taskTableRows.length; i++) {
+  const taskTable = document.querySelector("table[id^='m_c_']");
+  const taskTableRows = taskTable.querySelectorAll('tr');
+  const currentUserID = 0;
+  let currentInput;
+  const visibleRows = 0;
+  const selectedRows = 0;
+  for (const i = 1; i < taskTableRows.length; i++) {
     currentUserIDList = taskTableRows[i].getAttribute('data-useridlist');
     if (currentUserIDList == null) {
       continue;
@@ -273,7 +269,7 @@ function ke_stuf_applyFilter() {
     } else {
       taskTableRows[i].style = 'display: none;';
       if (currentInput.checked) {
-        var clickEvent = new MouseEvent('click');
+        const clickEvent = new MouseEvent('click');
         currentInput.dispatchEvent(clickEvent);
       }
     }
@@ -285,9 +281,9 @@ function ke_stuf_applyFilter() {
 
   // if all visible rows are selected, check the select all checkbox
   if (visibleRows == selectedRows) {
-    document.getElementById('kentico-extensions-select-all').checked = true;
+    document.querySelector('#kentico-extensions-select-all').checked = true;
   } else {
-    document.getElementById('kentico-extensions-select-all').checked = false;
+    document.querySelector('#kentico-extensions-select-all').checked = false;
   }
 
   ke_log(document.querySelector("input[id$='hidSelection']").value);
@@ -300,24 +296,24 @@ function ke_stuf_endRequestHandler(sender, args) {
 }
 
 function ke_stuf_selectAll() {
-  var selectAll = document.getElementById(
-    'kentico-extensions-select-all'
+  const selectAll = document.querySelector(
+    '#kentico-extensions-select-all'
   ).checked;
-  var userSelect = document.getElementById('kentico-extensions-user-filter');
-  var selectedUserID = Number(userSelect.selectedOptions[0].value);
-  var taskTable = document.querySelector("table[id^='m_c_']");
-  var taskTableRows = taskTable.getElementsByTagName('tr');
-  var currentUserID = 0;
-  var currentInput;
-  for (var i = 1; i < taskTableRows.length; i++) {
+  const userSelect = document.querySelector('#kentico-extensions-user-filter');
+  const selectedUserID = Number(userSelect.selectedOptions[0].value);
+  const taskTable = document.querySelector("table[id^='m_c_']");
+  const taskTableRows = taskTable.querySelectorAll('tr');
+  const currentUserID = 0;
+  let currentInput;
+  for (const i = 1; i < taskTableRows.length; i++) {
     currentUserID = taskTableRows[i].getAttribute('data-userid');
     if (currentUserID == null) {
       continue;
     }
     currentUserID = Number(taskTableRows[i].getAttribute('data-userid'));
-    currentInput = taskTableRows[i].getElementsByTagName('input')[0];
+    currentInput = taskTableRows[i].querySelectorAll('input')[0];
 
-    var clickEvent = new MouseEvent('click');
+    const clickEvent = new MouseEvent('click');
     if (selectedUserID == currentUserID && selectAll) {
       if (currentInput.checked == false) {
         currentInput.dispatchEvent(clickEvent);

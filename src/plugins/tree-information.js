@@ -1,12 +1,13 @@
+import { get } from '../infrastructure/api';
 import { ke_getExtensionConfiguration } from '../infrastructure/config';
 
 /*
 Extension: Tree Information (ti)
 Description: Displays additional information within the content tree.
 */
-document.addEventListener('ke_init_complete', ke_ti_init, false);
+document.addEventListener('ke_init_complete', initialize, false);
 
-async function ke_ti_init() {
+async function initialize() {
   if (
     !window.location.href.includes(
       '/CMSModules/Content/CMSDesk/Default.aspx'
@@ -15,55 +16,56 @@ async function ke_ti_init() {
   ) {
     return;
   }
-  var extConfig = ke_getExtensionConfiguration('ti');
+  const extConfig = ke_getExtensionConfiguration('ti');
 
-  if (!extConfig.Enabled) {
+  if (!extConfig?.Enabled) {
     return;
   }
 
-  var mutationObserver = new MutationObserver(ke_ti_mutationHandler);
+  const mutationObserver = new MutationObserver(ke_ti_mutationHandler);
 
-  var contentTree = document.querySelectorAll(
+  const contentTree = document.querySelectorAll(
     "div[id$='contentcontrolpanel']"
   )[0];
   mutationObserver.observe(contentTree, { childList: true, subtree: true });
 
   // no need to pass current culture since it uses a different domain
-  const treeItems = await ke_getAPIDataAsync({ data: 'treeinfo' });
+  const treeItems = await get({ data: 'treeinfo' });
 
   ke_ti_loadCallback(treeItems);
 }
 
 function ke_ti_mutationHandler(mutations) {
-  for (var i = 0; i < mutations.length; i++) {
-    var mutation = mutations[i];
+  for (const i = 0; i < mutations.length; i++) {
+    const mutation = mutations[i];
     if (
       mutation.addedNodes.length > 0 &&
       mutation.addedNodes[0].className != 'ke-ti-info-div'
     ) {
-      ke_log('content tree muation detected');
-      ke_getAPIDataAsync('data=treeinfo', false, ke_ti_loadCallback, true);
+      const treeItems = await get('data=treeinfo', false);
+
+      ke_ti_loadCallback(treeItems);
     }
   }
 }
 
 function ke_ti_loadCallback(treeItems) {
-  var spanElements = document.querySelectorAll("span[id^='target_']");
+  const spanElements = document.querySelectorAll("span[id^='target_']");
 
-  var bodyElement = document.querySelectorAll('body')[0];
+  const bodyElement = document.querySelectorAll('body')[0];
 
-  for (var i = 0; i < spanElements.length; i++) {
-    var parentElement = spanElements[i].parentNode;
-    var nodeID = spanElements[i].id.replace('target_', '');
-    var treeItem = ke_ti_getTreeItemInfo(treeItems, nodeID);
+  for (const i = 0; i < spanElements.length; i++) {
+    const parentElement = spanElements[i].parentNode;
+    const nodeID = spanElements[i].id.replace('target_', '');
+    const treeItem = ke_ti_getTreeItemInfo(treeItems, nodeID);
 
     if (treeItem == null) continue;
 
-    var currentDiv = document.querySelector('#ke_ti_node_' + nodeID);
-    var infoDiv = currentDiv;
+    const currentDiv = document.querySelector('#ke_ti_node_' + nodeID);
+    const infoDiv = currentDiv;
 
     if (infoDiv == undefined) {
-      var infoDiv = document.createElement('div');
+      const infoDiv = document.createElement('div');
       infoDiv.id = 'ke_ti_node_' + nodeID;
       infoDiv.className = 'ke-ti-info-div';
       infoDiv.style.display = 'none';
@@ -105,19 +107,21 @@ function ke_ti_loadCallback(treeItems) {
 
     parentElement.onmouseover = function () {
       // hide all existing info panels
-      var elementArray = document.querySelectorAll('.ke-ti-info-div');
-      for (var i = 0; i < elementArray.length; i++) {
+      const elementArray = document.querySelectorAll('.ke-ti-info-div');
+      for (const i = 0; i < elementArray.length; i++) {
         elementArray[i].style.display = 'none';
       }
 
       // set position and show
-      var spanElement = this.firstElementChild;
-      var nodeID = spanElement.id.replace('target_', '');
-      var infoDiv = document.querySelector('#ke_ti_node_' + nodeID);
-      var clientHeight = document.querySelector('#node_' + nodeID).clientHeight;
+      const spanElement = this.firstElementChild;
+      const nodeID = spanElement.id.replace('target_', '');
+      const infoDiv = document.querySelector('#ke_ti_node_' + nodeID);
+      const clientHeight = document.querySelector(
+        '#node_' + nodeID
+      ).clientHeight;
 
       // content tree splitter
-      var contentTreeSplitterRect = document
+      const contentTreeSplitterRect = document
         .querySelectorAll('.ui-layout-resizer-west')[0]
         .getBoundingClientRect();
       infoDiv.style.top = contentTreeSplitterRect.bottom - 125 - 30 + 'px';
@@ -128,7 +132,7 @@ function ke_ti_loadCallback(treeItems) {
       infoDiv.style.display = '';
     };
     parentElement.onmouseout = function () {
-      var nodeID = this.firstElementChild.id.replace('target_', '');
+      const nodeID = this.firstElementChild.id.replace('target_', '');
       setTimeout(function () {
         if (
           document.querySelector('#ke_ti_node_' + nodeID).style.display == ''
@@ -142,7 +146,7 @@ function ke_ti_loadCallback(treeItems) {
 }
 
 function ke_ti_getTreeItemInfo(treeItems, NodeID) {
-  for (var i = 0; i < treeItems.length; i++) {
+  for (const i = 0; i < treeItems.length; i++) {
     if (treeItems[i].NodeID == NodeID) {
       return treeItems[i];
     }

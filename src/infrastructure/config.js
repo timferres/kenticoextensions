@@ -33,6 +33,11 @@ export function ke_setConfiguration(newConfig) {
     newConfig.CacheListRefreshFrequency || config.CacheListRefreshFrequency;
 }
 
+/**
+ * Retrieves the configuration for the given extension codeName
+ * @param {string} code
+ * @returns {{ Enabled: boolean, Config: Object } | undefined}
+ */
 export function ke_getExtensionConfiguration(code) {
   return config.Extensions.find((e) => e.Code === code) || {};
 }
