@@ -29,3 +29,18 @@ export function isCMSDeskFrame() {
     '/CMSModules/Content/CMSDesk/Default.aspx'
   );
 }
+
+export function isStagingFrame() {
+  return (
+    window.location.href.includes(
+      '/CMSModules/Staging/Tools/AllTasks/Tasks.aspx'
+    ) ||
+    window.location.href.includes(
+      '/CMSModules/Staging/Tools/Tasks/Tasks.aspx'
+    ) ||
+    window.location.href.includes(
+      '/CMSModules/Staging/Tools/Objects/Tasks.aspx'
+    ) ||
+    window.location.href.includes('/CMSModules/Staging/Tools/Data/Tasks.aspx')
+  );
+}
