@@ -10,13 +10,13 @@ const userInfo = {
 export function ke_checkUserEnabled() {
   const { EnabledUserNames } = ke_getConfiguration();
 
-  return EnabledUserNames.indexOf(ke_UserName) > -1;
+  return EnabledUserNames.indexOf(userInfo.username) > -1;
 }
 
 export function ke_checkUserDisabled() {
   const { DisabledUserNames } = ke_getConfiguration();
 
-  return DisabledUserNames.indexOf(ke_UserName) > -1;
+  return DisabledUserNames.indexOf(userInfo.username) > -1;
 }
 
 export function ke_getUserInfo() {

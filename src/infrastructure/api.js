@@ -6,8 +6,8 @@ export function get(queryParams, refreshData) {
   var params = new URLSearchParams();
 
   for (const key in queryParams) {
-    if (Object.hasOwnProperty.call(object, key)) {
-      params.append(key, object[key]);
+    if (Object.hasOwnProperty.call(queryParams, key)) {
+      params.append(key, queryParams[key]);
     }
   }
 
@@ -15,11 +15,13 @@ export function get(queryParams, refreshData) {
     params.append('refreshdata', true);
   }
 
-  const requestURL = params.keys.length
+  const requestURL = Array.from(params.entries()).length
     ? `${apiURL}?${params.toString()}`
     : apiURL;
 
-  return fetch(requestURL, { method: 'GET' }).then((resp) => resp.json());
+  return fetch(requestURL, { method: 'GET' })
+    .then((resp) => resp.json())
+    .then((resp) => resp.Data);
 }
 
 export function post(queryParams, payload, refreshData) {
@@ -44,5 +46,7 @@ export function post(queryParams, payload, refreshData) {
   return fetch(requestURL, {
     method: 'POST',
     body: JSON.stringify(payload),
-  }).then((resp) => resp.json());
+  })
+    .then((resp) => resp.json())
+    .then((resp) => resp.Data);
 }

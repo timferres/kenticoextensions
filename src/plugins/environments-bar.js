@@ -1,12 +1,10 @@
 import { ke_getExtensionConfiguration } from '../infrastructure/config';
 
-/*
+/* 
 Extension: Environment Bar (eb)
 Description: Adds a coloured bar to indicate the current environment
 */
-document.addEventListener('ke_init_complete', initialize, false);
-
-function initialize() {
+export function initialize() {
   const masterContainer = document.querySelectorAll('.CMSDeskContent')[0];
   if (!masterContainer) {
     return;
@@ -40,12 +38,14 @@ function initialize() {
   envbarlabel.style.backgroundColor = envConfig.Color;
   envbarlabel.innerHTML = `<span>${envConfig.Label}</span>`;
   masterContainer.parentNode.insertBefore(envbarlabel, masterContainer);
+
+  document.title = `${envConfig.Label}-${document.title}`;
 }
 
 function ke_eb_getEnvConfig(ebConfig) {
   const envConfig = ebConfig.Config;
   const currentURL = window.location.hostname;
-  for (const i = 0; i < envConfig.Environments.length; i++) {
+  for (let i = 0; i < envConfig.Environments.length; i++) {
     const configURL = envConfig.Environments[i].URL;
     if (configURL == currentURL) {
       return envConfig.Environments[i];

@@ -1,15 +1,28 @@
 import { ke_getConfiguration } from './infrastructure/config';
 import { ke_checkUserDisabled, ke_checkUserEnabled } from './auth/session';
+import { ke_init } from './infrastructure/init';
+
+import { initialize as initializeEnvironmentsBar } from './plugins/environments-bar';
 
 /*
 Kentico Extensions Common
 Description: Common methods required by multiple Kentico Extensions
 */
-var ke_init_complete = ke_init();
+async function init() {
+  if (!document.querySelector('.CMSDeskContent')) {
+    return;
+  }
 
-const { Enabled } = ke_getConfiguration();
+  var ke_init_complete = await ke_init();
 
-if (Enabled && ke_checkUserEnabled() && ke_checkUserDisabled() === false) {
-  // initalise all the extensions
-  document.dispatchEvent(ke_init_complete);
+  const { Enabled } = ke_getConfiguration();
+
+  if (Enabled && ke_checkUserEnabled() && !ke_checkUserDisabled()) {
+    // initalise all the extensions
+    document.dispatchEvent(ke_init_complete);
+
+    initializeEnvironmentsBar();
+  }
 }
+
+init();
