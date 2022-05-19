@@ -1,5 +1,8 @@
 {
   "compilerOptions": {
-    "strict": true
+    "strict": true,
+    "target": "ES2018",
+    "module": "ES2020",
+    "lib": ["DOM", "ES2018"]
   }
 }
