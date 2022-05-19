@@ -1,4 +1,4 @@
-import { ke_getConfiguration } from '../infrastructure/config';
+import { getAppConfig } from '../infrastructure/config';
 
 const userInfo = {
   id: 0,
@@ -7,25 +7,23 @@ const userInfo = {
   globalAdmin: false,
 };
 
-export function ke_checkUserEnabled() {
-  const { EnabledUserNames } = ke_getConfiguration();
+export function isCurrentSessionEnabled() {
+  const { EnabledUserNames, DisabledUserNames } = getAppConfig();
 
-  return EnabledUserNames.indexOf(userInfo.username) > -1;
+  return (
+    userInfo.username &&
+    EnabledUserNames.includes(userInfo.username) &&
+    !DisabledUserNames.includes(userInfo.username)
+  );
 }
 
-export function ke_checkUserDisabled() {
-  const { DisabledUserNames } = ke_getConfiguration();
-
-  return DisabledUserNames.indexOf(userInfo.username) > -1;
-}
-
-export function ke_getUserInfo() {
+export function getCurrentSession() {
   return {
     ...userInfo,
   };
 }
 
-export function ke_setUserInfo(info) {
+export function setCurrentSession(info) {
   userInfo.guid = info.guid;
   userInfo.id = info.id;
   userInfo.username = info.username;

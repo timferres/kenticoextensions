@@ -1,5 +1,5 @@
 import { get } from '../infrastructure/api';
-import { ke_getExtensionConfiguration } from '../infrastructure/config';
+import { getExtensionConfig } from '../infrastructure/config';
 
 /*
 Extension: Tree Information (ti)
@@ -16,7 +16,7 @@ async function initialize() {
   ) {
     return;
   }
-  const extConfig = ke_getExtensionConfiguration('ti');
+  const extConfig = getExtensionConfig('ti');
 
   if (!extConfig?.Enabled) {
     return;

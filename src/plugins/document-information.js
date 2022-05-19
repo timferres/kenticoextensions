@@ -1,20 +1,14 @@
 import { get } from '../infrastructure/api';
-import { ke_getExtensionConfiguration } from '../infrastructure/config';
-import { ke_getQueryStringValue } from '../utilities/url';
+import { getExtensionConfig } from '../infrastructure/config';
+import { getQueryStringValue, isPageInfoFrame } from '../utilities/url';
 import { ke_getISODateTimeString } from '../utilities/formatting';
 
 /*
 Extension: Document Information (di)
 Description: Displays additional information within the document view.
 */
-document.addEventListener('ke_init_complete', initialize, false);
-
-async function initialize() {
-  if (
-    !window.location.href.includes(
-      '/CMSModules/AdminControls/Pages/UIPage.aspx'
-    )
-  ) {
+export async function initialize() {
+  if (!isPageInfoFrame()) {
     return;
   }
 
@@ -24,13 +18,13 @@ async function initialize() {
     return;
   }
 
-  const extConfig = ke_getExtensionConfiguration('di');
+  const extConfig = getExtensionConfig('di');
 
   if (!extConfig.Enabled) {
     return;
   }
 
-  const nodeid = ke_getQueryStringValue('nodeid');
+  const nodeid = getQueryStringValue('nodeid');
 
   if (nodeid == null || nodeid == '') {
     return;
@@ -45,11 +39,10 @@ async function initialize() {
   const [navTabs] = allNavTabs;
   const [docItem] = docItems;
 
-  const dateTimeString = docItem.DocumentModifiedWhen.replace(
-    'T',
-    ' '
-  ).substring(0, 19);
-  dateTimeString = ke_getISODateTimeString(docItem.DocumentModifiedWhen, '12');
+  const dateTimeString = ke_getISODateTimeString(
+    docItem.DocumentModifiedWhen,
+    '12'
+  );
 
   const infoDiv = document.createElement('div');
   infoDiv.id = `ke_di_node_${docItem.NodeID}`;

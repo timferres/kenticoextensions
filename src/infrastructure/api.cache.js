@@ -183,7 +183,7 @@ function ke_xhrSuccess() {
     .replace('?refreshdata=true', '');
   var clientKey = requestURL.substring(requestURL.indexOf('?') + 1);
 
-  var data = ke_getQueryStringValue('data', this.responseURL);
+  var data = getQueryStringValue('data', this.responseURL);
   if (data !== 'executequery') {
     localStorage.setItem(clientKey, this.responseText);
   }

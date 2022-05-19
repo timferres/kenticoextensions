@@ -16,13 +16,13 @@ const config = {
   apiURL: ke_APIURL,
 };
 
-export function ke_getConfiguration() {
+export function getAppConfig() {
   return {
     ...config,
   };
 }
 
-export function ke_setConfiguration(newConfig) {
+export function setAppConfig(newConfig) {
   config.Enabled = newConfig.Enabled;
   config.EnabledUserNames =
     newConfig.EnabledUserNames || config.EnabledUserNames;
@@ -38,6 +38,6 @@ export function ke_setConfiguration(newConfig) {
  * @param {string} code
  * @returns {{ Enabled: boolean, Config: Object } | undefined}
  */
-export function ke_getExtensionConfiguration(code) {
+export function getExtensionConfig(code) {
   return config.Extensions.find((e) => e.Code === code) || {};
 }

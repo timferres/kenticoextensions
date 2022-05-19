@@ -1,7 +1,7 @@
-import { ke_getConfiguration } from '../infrastructure/config';
+import { getAppConfig } from '../infrastructure/config';
 
 export function ke_log(message, outputpathname) {
-  const { ConsoleLogging } = ke_getConfiguration();
+  const { ConsoleLogging } = getAppConfig();
 
   if (outputpathname == undefined) {
     outputpathname = false;

@@ -1,7 +1,7 @@
 import { get } from '../infrastructure/api';
-import { ke_getExtensionConfiguration } from '../infrastructure/config';
+import { getExtensionConfig } from '../infrastructure/config';
 import { ke_formatBytes } from '../utilities/formatting';
-import { ke_getQueryStringValue } from '../utilities/url';
+import { getQueryStringValue } from '../utilities/url';
 
 /*
 Extension: Media Selector (ms)
@@ -15,7 +15,7 @@ async function initialize() {
     return;
   }
 
-  const extConfig = ke_getExtensionConfiguration('ms');
+  const extConfig = getExtensionConfig('ms');
 
   if (!extConfig.Enabled) {
     return;
@@ -57,8 +57,8 @@ async function ke_ms_addImageSizeLabel(ms) {
   }
 
   const fileguid = imageurl.substr(imageurl.indexOf('getmedia/') + 9, 36);
-  const width = ke_getQueryStringValue('width', imageurl);
-  const height = ke_getQueryStringValue('height', imageurl);
+  const width = getQueryStringValue('width', imageurl);
+  const height = getQueryStringValue('height', imageurl);
 
   const mediafile = await get({
     data: 'mediafileinfo',

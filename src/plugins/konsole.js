@@ -3,7 +3,7 @@ Extension: Konsole (ko)
 Description: Provides an interactive console for developers
 */
 
-import { ke_getConfiguration } from '../infrastructure/config';
+import { getAppConfig } from '../infrastructure/config';
 
 var kb_ko_initalised = false;
 var kb_ko_config = null;
@@ -38,7 +38,7 @@ function ke_ko_init() {
   ke_ko_globalBinding();
 
   if (
-    ke_getQueryStringValue('showkonsole') === 'true' ||
+    getQueryStringValue('showkonsole') === 'true' ||
     document.getElementById('konsole') !== null
   )
     ke_ko_show();
@@ -1091,7 +1091,7 @@ function ke_ko_listSettingKeys() {
 }
 
 function ke_ko_settingKeysCallback(dataSet) {
-  const { siteURL } = ke_getConfiguration();
+  const { siteURL } = getAppConfig();
 
   var filteredResults = ke_ko_filterDataset(dataSet);
   var displaySet = [];
@@ -1197,7 +1197,7 @@ function ke_ko_listTreeData() {
 }
 
 function ke_ko_treeDataCallback(dataSet) {
-  const { adminURL, publicSiteURL } = ke_getConfiguration();
+  const { adminURL, publicSiteURL } = getAppConfig();
 
   var filteredResults = ke_ko_filterDataset(dataSet);
   var displaySet = [];

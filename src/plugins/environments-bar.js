@@ -1,4 +1,4 @@
-import { ke_getExtensionConfiguration } from '../infrastructure/config';
+import { getExtensionConfig } from '../infrastructure/config';
 
 /* 
 Extension: Environment Bar (eb)
@@ -10,7 +10,7 @@ export function initialize() {
     return;
   }
 
-  const extConfig = ke_getExtensionConfiguration('eb');
+  const extConfig = getExtensionConfig('eb');
 
   if (!extConfig.Enabled) {
     return;
@@ -20,7 +20,7 @@ export function initialize() {
     return;
   }
 
-  const envConfig = ke_eb_getEnvConfig(extConfig);
+  const envConfig = getCurrentEnvironmentConfig(extConfig);
 
   if (!envConfig) {
     return;
@@ -42,12 +42,13 @@ export function initialize() {
   document.title = `${envConfig.Label}-${document.title}`;
 }
 
-function ke_eb_getEnvConfig(ebConfig) {
-  const envConfig = ebConfig.Config;
+function getCurrentEnvironmentConfig(extensionConfig) {
+  const envConfig = extensionConfig.Config;
   const currentURL = window.location.hostname;
+
   for (let i = 0; i < envConfig.Environments.length; i++) {
     const configURL = envConfig.Environments[i].URL;
-    if (configURL == currentURL) {
+    if (configURL === currentURL) {
       return envConfig.Environments[i];
     }
 

@@ -1,6 +1,6 @@
-import { ke_getUserInfo } from '../auth/session';
+import { getCurrentSession } from '../auth/session';
 import { get } from '../infrastructure/api';
-import { ke_getExtensionConfiguration } from '../infrastructure/config';
+import { getExtensionConfig } from '../infrastructure/config';
 
 /*
 Extension: UI Restriction (uir)
@@ -9,7 +9,7 @@ Description: Disables specific UI elements if the user is not within the CMS UI 
 document.addEventListener('ke_init_complete', initialize, false);
 
 async function initialize() {
-  const extConfig = ke_getExtensionConfiguration('uir');
+  const extConfig = getExtensionConfig('uir');
 
   if (!extConfig?.Enabled) {
     return;
@@ -72,7 +72,7 @@ function ke_uir_disableButtons(ke_uir_buttonArray) {
 }
 
 async function ke_uir_enableButtons(ke_uir_buttonArray) {
-  const { id } = ke_getUserInfo();
+  const { id } = getCurrentSession();
 
   const userRoles = await get({ data: 'userroles', userid: id });
 

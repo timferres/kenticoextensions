@@ -1,28 +1,37 @@
-import { ke_getConfiguration } from './infrastructure/config';
-import { ke_checkUserDisabled, ke_checkUserEnabled } from './auth/session';
-import { ke_init } from './infrastructure/init';
+import { setAppConfig } from './infrastructure/config';
+import { isCurrentSessionEnabled, setCurrentSession } from './auth/session';
+import { get } from './infrastructure/api';
 
-import { initialize as initializeEnvironmentsBar } from './plugins/environments-bar';
+import { isCMSRootIFrame } from './utilities/dom';
+import { isLoginPage } from './utilities/url';
+import { initializePlugins } from './plugins/plugins';
 
-/*
-Kentico Extensions Common
-Description: Common methods required by multiple Kentico Extensions
-*/
-async function init() {
-  if (!document.querySelector('.CMSDeskContent')) {
+(async function init() {
+  if (isLoginPage()) {
+    // clear local storage to avoid using cached data for another user
+    localStorage.clear();
+
+    // don't do anything else since it is the login page
     return;
   }
 
-  var ke_init_complete = await ke_init();
+  const sessionData = await get({ data: 'session' });
 
-  const { Enabled } = ke_getConfiguration();
+  setCurrentSession({
+    id: sessionData.UserID,
+    guid: sessionData.UserGUID,
+    username: sessionData.UserName,
+    globalAdmin: sessionData.GlobalAdmin,
+  });
 
-  if (Enabled && ke_checkUserEnabled() && !ke_checkUserDisabled()) {
+  const config = await get({ data: 'configuration' });
+
+  setAppConfig(config);
+
+  if (config.Enabled && isCurrentSessionEnabled()) {
     // initalise all the extensions
-    document.dispatchEvent(ke_init_complete);
+    document.dispatchEvent(new Event('ke_init_complete'));
 
-    initializeEnvironmentsBar();
+    initializePlugins();
   }
-}
-
-init();
+})();

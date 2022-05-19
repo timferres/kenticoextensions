@@ -1,7 +1,7 @@
-import { ke_getConfiguration } from './config';
+import { getAppConfig } from './config';
 
 export function get(queryParams, refreshData) {
-  const { apiURL } = ke_getConfiguration();
+  const { apiURL } = getAppConfig();
 
   var params = new URLSearchParams();
 
@@ -25,7 +25,7 @@ export function get(queryParams, refreshData) {
 }
 
 export function post(queryParams, payload, refreshData) {
-  const { apiURL } = ke_getConfiguration();
+  const { apiURL } = getAppConfig();
 
   var params = new URLSearchParams();
 

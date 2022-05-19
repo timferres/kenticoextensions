@@ -1,7 +1,4 @@
-import {
-  ke_getConfiguration,
-  ke_getExtensionConfiguration,
-} from '../infrastructure/config';
+import { getAppConfig, getExtensionConfig } from '../infrastructure/config';
 
 /*
 Extension: Shortcuts Bar (sb)
@@ -22,7 +19,7 @@ function initialized() {
     return;
   }
 
-  const extConfig = ke_getExtensionConfiguration('sb');
+  const extConfig = getExtensionConfig('sb');
   if (!extConfig?.Enabled) {
     return;
   }
@@ -93,7 +90,7 @@ function ke_sb_load(refreshData) {
 }
 
 function ke_sb_loadCallback(shortcutBarItems) {
-  const { publicSiteURL } = ke_getConfiguration();
+  const { publicSiteURL } = getAppConfig();
 
   const masterContainer = document.getElementsByClassName('CMSDeskContent')[0];
   if (masterContainer === undefined) {
