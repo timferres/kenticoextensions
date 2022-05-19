@@ -1,19 +1,17 @@
 import { get } from '../infrastructure/api';
 import { getExtensionConfig } from '../infrastructure/config';
+import { contenTree, isContentTree } from '../utilities/dom';
+import { isCMSDeskFrame } from '../utilities/url';
+
+let treeItems = [];
+let treeItemsLookup = {};
 
 /*
 Extension: Tree Information (ti)
 Description: Displays additional information within the content tree.
 */
-document.addEventListener('ke_init_complete', initialize, false);
-
-async function initialize() {
-  if (
-    !window.location.href.includes(
-      '/CMSModules/Content/CMSDesk/Default.aspx'
-    ) ||
-    !document.querySelectorAll('.ContentTree').length
-  ) {
+export async function initialize() {
+  if (!isCMSDeskFrame() || !isContentTree()) {
     return;
   }
   const extConfig = getExtensionConfig('ti');
@@ -22,78 +20,50 @@ async function initialize() {
     return;
   }
 
-  const mutationObserver = new MutationObserver(ke_ti_mutationHandler);
+  const mutationObserver = new MutationObserver(function (mutations) {
+    for (const mutation of mutations) {
+      if (
+        mutation.addedNodes.length > 0 &&
+        mutation.addedNodes[0].className != 'ke-ti-info-div'
+      ) {
+        setupInfoPanels();
+      }
+    }
+  });
 
-  const contentTree = document.querySelectorAll(
-    "div[id$='contentcontrolpanel']"
-  )[0];
-  mutationObserver.observe(contentTree, { childList: true, subtree: true });
+  mutationObserver.observe(contenTree(), {
+    childList: true,
+    subtree: true,
+  });
 
   // no need to pass current culture since it uses a different domain
-  const treeItems = await get({ data: 'treeinfo' });
+  treeItems = await get({ data: 'treeinfo' });
 
-  ke_ti_loadCallback(treeItems);
+  treeItemsLookup = treeItems.reduce((prev, curr) => {
+    prev[curr.NodeID] = curr;
+
+    return prev;
+  }, {});
+
+  setupInfoPanels();
 }
 
-function ke_ti_mutationHandler(mutations) {
-  for (const i = 0; i < mutations.length; i++) {
-    const mutation = mutations[i];
-    if (
-      mutation.addedNodes.length > 0 &&
-      mutation.addedNodes[0].className != 'ke-ti-info-div'
-    ) {
-      const treeItems = await get('data=treeinfo', false);
-
-      ke_ti_loadCallback(treeItems);
-    }
-  }
-}
-
-function ke_ti_loadCallback(treeItems) {
+function setupInfoPanels() {
   const spanElements = document.querySelectorAll("span[id^='target_']");
 
-  const bodyElement = document.querySelectorAll('body')[0];
+  const bodyElement = document.querySelector('body');
 
-  for (const i = 0; i < spanElements.length; i++) {
-    const parentElement = spanElements[i].parentNode;
-    const nodeID = spanElements[i].id.replace('target_', '');
-    const treeItem = ke_ti_getTreeItemInfo(treeItems, nodeID);
+  for (const span of spanElements) {
+    const parentElement = span.parentNode;
+    const nodeID = span.id.replace('target_', '');
+    const treeItem = treeItemsLookup[nodeID];
 
-    if (treeItem == null) continue;
-
-    const currentDiv = document.querySelector('#ke_ti_node_' + nodeID);
-    const infoDiv = currentDiv;
-
-    if (infoDiv == undefined) {
-      const infoDiv = document.createElement('div');
-      infoDiv.id = 'ke_ti_node_' + nodeID;
-      infoDiv.className = 'ke-ti-info-div';
-      infoDiv.style.display = 'none';
-      infoDiv.innerHTML =
-        '<strong>Node Name:</strong> ' + treeItem.NodeName + '<br />';
-      infoDiv.innerHTML +=
-        '<strong>Node ID:</strong> ' + treeItem.NodeID + '<br />';
-      infoDiv.innerHTML +=
-        '<strong>Node GUID:</strong> ' + treeItem.NodeGUID + '<br />';
-      infoDiv.innerHTML +=
-        "<strong>Node Alias Path:</strong> <a target='_blank' href='" +
-        treeItem.AbsolutePath +
-        "'>" +
-        treeItem.NodeAliasPath +
-        '</a><br />';
-      infoDiv.innerHTML +=
-        '<strong>Page Type:</strong> ' +
-        treeItem.ClassDisplayName +
-        ' [' +
-        treeItem.ClassName +
-        ']<br />';
-      infoDiv.innerHTML +=
-        '<strong>Page Template:</strong> ' +
-        treeItem.PageTemplateDisplayName +
-        ' [' +
-        treeItem.PageTemplateCodeName +
-        ']';
+    if (!treeItem) {
+      continue;
     }
+
+    const currentDiv = document.querySelector(`#ke_ti_node_${nodeID}`);
+    let infoDiv = currentDiv ?? createInfoPanel(treeItem);
 
     infoDiv.onmouseover = function () {
       this.style.display = 'block';
@@ -108,8 +78,9 @@ function ke_ti_loadCallback(treeItems) {
     parentElement.onmouseover = function () {
       // hide all existing info panels
       const elementArray = document.querySelectorAll('.ke-ti-info-div');
-      for (const i = 0; i < elementArray.length; i++) {
-        elementArray[i].style.display = 'none';
+
+      for (const el of document.querySelectorAll('.ke-ti-info-div')) {
+        el.style.display = 'none';
       }
 
       // set position and show
@@ -117,7 +88,7 @@ function ke_ti_loadCallback(treeItems) {
       const nodeID = spanElement.id.replace('target_', '');
       const infoDiv = document.querySelector('#ke_ti_node_' + nodeID);
       const clientHeight = document.querySelector(
-        '#node_' + nodeID
+        `#node_${nodeID}`
       ).clientHeight;
 
       // content tree splitter
@@ -131,6 +102,7 @@ function ke_ti_loadCallback(treeItems) {
       //infoDiv.style.left = spanElement.getBoundingClientRect().left + 20 + "px";
       infoDiv.style.display = '';
     };
+
     parentElement.onmouseout = function () {
       const nodeID = this.firstElementChild.id.replace('target_', '');
       setTimeout(function () {
@@ -145,11 +117,18 @@ function ke_ti_loadCallback(treeItems) {
   }
 }
 
-function ke_ti_getTreeItemInfo(treeItems, NodeID) {
-  for (const i = 0; i < treeItems.length; i++) {
-    if (treeItems[i].NodeID == NodeID) {
-      return treeItems[i];
-    }
-  }
-  return null;
+function createInfoPanel(treeItem) {
+  const infoEl = document.createElement('div');
+  infoEl.id = `ke_ti_node_${treeItem.NodeID}`;
+  infoEl.className = 'ke-ti-info-div';
+  infoEl.style.display = 'none';
+  infoEl.innerHTML = `<strong>Node Name:</strong> ${treeItem.NodeName}<br />
+<strong>Node ID:</strong> ${treeItem.NodeID}<br />
+<strong>Node GUID:</strong> ${treeItem.NodeGUID}<br />
+<strong>Node Alias Path:</strong>
+<a target='_blank' href='${treeItem.AbsolutePath}'>${treeItem.NodeAliasPath}</a><br />
+<strong>Page Type:</strong> ${treeItem.ClassDisplayName} [${treeItem.ClassName}]<br />
+<strong>Page Template:</strong> ${treeItem.PageTemplateDisplayName} [${treeItem.PageTemplateCodeName}]`;
+
+  return infoEl;
 }

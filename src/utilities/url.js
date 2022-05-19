@@ -23,3 +23,9 @@ export function isPageInfoFrame() {
     '/CMSModules/AdminControls/Pages/UIPage.aspx'
   );
 }
+
+export function isCMSDeskFrame() {
+  return window.location.href.includes(
+    '/CMSModules/Content/CMSDesk/Default.aspx'
+  );
+}
