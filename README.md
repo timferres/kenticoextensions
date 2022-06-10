@@ -32,4 +32,15 @@ If the shortcuts bar is covering information in the header, it can easily be col
 
 ![image](https://user-images.githubusercontent.com/6457851/164614205-03161c55-9be4-434a-8f01-3e0ee485e9b0.png)
 
-**These are just two exmaples, but Kentico Extensions can do much much more**
+**These are just two examples, but Kentico Extensions can do much much more**
+
+## Contributing
+
+Create a local Environment file (`.env.local`) copied from the included production file (`.env`).
+
+Example:
+
+```ini
+NODE_ENV=development
+OUTFILE=../path/to/test/site/CMS/kenticoextensions/kenticoextensions.min.js
+```
