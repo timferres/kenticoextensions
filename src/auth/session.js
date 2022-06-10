@@ -12,8 +12,8 @@ export function isCurrentSessionEnabled() {
 
   return (
     userInfo.username &&
-    EnabledUserNames.includes(userInfo.username) &&
-    !DisabledUserNames.includes(userInfo.username)
+    (!EnabledUserNames.length || EnabledUserNames.includes(userInfo.username)) &&
+    (!DisabledUserNames.length || !DisabledUserNames.includes(userInfo.username))
   );
 }
 
