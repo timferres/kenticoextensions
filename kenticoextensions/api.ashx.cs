@@ -85,15 +85,15 @@ public class kenticoextensionshandler : IHttpHandler, IRequiresSessionState
 
     private void HandleRequest()
     {
+        if (ValidRequest() == false)
+            return;
+
         currentUser = MembershipContext.AuthenticatedUser;
         if (IsAuthenitcatedCMSUser() == false)
         {
             WriteResponse(403, "The Kentico Extensions API only accepts authenticated requests.");
             return;
         }
-
-        if (ValidRequest() == false)
-            return;
 
         var resource = string.Empty;
         if (GetStringParam("resource", ref resource) != false)
@@ -398,9 +398,8 @@ public class kenticoextensionshandler : IHttpHandler, IRequiresSessionState
     private void ProcessGetSession()
     {
         var cacheItemName = string.Format("kenticoextensions|session|userid={0}", currentUser.UserID);
-
         if (refreshData)
-            CacheHelper.ClearCache(cacheItemName, false, false);
+            CacheHelper.TouchKey($"dummy|{cacheItemName}");
 
         contentResponse = CacheHelper.Cache(cs => GetSessionData(cs), new CacheSettings(60, cacheItemName));
 
@@ -437,7 +436,7 @@ public class kenticoextensionshandler : IHttpHandler, IRequiresSessionState
     {
         var cacheItemName = string.Format("kenticoextensions|userroles|userid={0}", currentUser.UserID);
         if (refreshData)
-            CacheHelper.ClearCache(cacheItemName, false, false);
+            CacheHelper.TouchKey($"dummy|{cacheItemName}");
 
         contentResponse = CacheHelper.Cache(cs => GetUserRoles(cs), new CacheSettings(60, cacheItemName));
 
@@ -477,7 +476,7 @@ public class kenticoextensionshandler : IHttpHandler, IRequiresSessionState
     {
         var cacheItemName = string.Format("kenticoextensions|treeinfo|siteid={0}&culture={1}", SiteContext.CurrentSiteID, LocalizationContext.PreferredCultureCode);
         if (refreshData)
-            CacheHelper.ClearCache(cacheItemName, false, false);
+            CacheHelper.TouchKey($"dummy|{cacheItemName}");
 
         contentResponse = CacheHelper.Cache(cs => GetTreeInfo(cs), new CacheSettings(60, cacheItemName));
 
@@ -541,9 +540,8 @@ public class kenticoextensionshandler : IHttpHandler, IRequiresSessionState
         }
 
         var cacheItemName = string.Format("kenticoextensions|documentinfo|nodeid={0}", nodeid);
-
         if (refreshData)
-            CacheHelper.ClearCache(cacheItemName, false, false);
+            CacheHelper.TouchKey($"dummy|{cacheItemName}");
 
         contentResponse = CacheHelper.Cache(cs => GetDocumentInfo(cs, nodeid), new CacheSettings(60, cacheItemName));
 
@@ -662,7 +660,7 @@ public class kenticoextensionshandler : IHttpHandler, IRequiresSessionState
     {
         var cacheItemName = "kenticoextensions|configuration";
         if (refreshData)
-            CacheHelper.ClearCache(cacheItemName, false, false);
+            CacheHelper.TouchKey($"dummy|{cacheItemName}");
 
         contentResponse = CacheHelper.Cache(cs => GetConfiguration(cs), new CacheSettings(60, cacheItemName));
         UpdateCacheList(contentResponse);
@@ -700,7 +698,7 @@ public class kenticoextensionshandler : IHttpHandler, IRequiresSessionState
                     var extensionConfigJSON = File.ReadAllText(extensionConfigFullPath);
                     ext.Config = JsonConvert.DeserializeObject<object>(extensionConfigJSON);
                 }
-                
+
             }
         }
 
@@ -739,7 +737,7 @@ public class kenticoextensionshandler : IHttpHandler, IRequiresSessionState
                                             categoryName,
                                             recursive.ToString().ToLower());
         if (refreshData)
-            CacheHelper.ClearCache(cacheItemName, false, false);
+            CacheHelper.TouchKey($"dummy|{cacheItemName}");
 
         contentResponse = CacheHelper.Cache(cs => GetSettingsByCategoryName(cs, categoryName, recursive), new CacheSettings(60, cacheItemName));
 
@@ -814,9 +812,8 @@ public class kenticoextensionshandler : IHttpHandler, IRequiresSessionState
     public void ProcessGetShortcutBarItems()
     {
         var cacheItemName = String.Format("kenticoextensions|shortcutbaritems|userid={0}", currentUser.UserID);
-
         if (refreshData)
-            CacheHelper.ClearCache(cacheItemName, false, false);
+            CacheHelper.TouchKey($"dummy|{cacheItemName}");
 
         contentResponse = CacheHelper.Cache(cs => GetShortcutItemsFromDB(cs), new CacheSettings(60, cacheItemName));
         UpdateCacheList(contentResponse);
@@ -909,7 +906,7 @@ public class kenticoextensionshandler : IHttpHandler, IRequiresSessionState
 
         var cacheItemName = string.Format("kenticoextensions|stagingtasks|serverid={0}", serverID);
         if (refreshData)
-            CacheHelper.TouchKey(cacheItemName);
+            CacheHelper.TouchKey($"dummy|{cacheItemName}");
 
         contentResponse = CacheHelper.Cache(cs => GetStagingTasks(cs, serverID), new CacheSettings(60, cacheItemName));
 
@@ -978,7 +975,7 @@ public class kenticoextensionshandler : IHttpHandler, IRequiresSessionState
 
         var cacheItemName = string.Format("kenticoextensions|stagingusers|serverid={0}", serverID);
         if (refreshData)
-            CacheHelper.TouchKey(cacheItemName);
+            CacheHelper.TouchKey($"dummy|{cacheItemName}");
 
         contentResponse = CacheHelper.Cache(cs => GetStagingUsers(cs, serverID), new CacheSettings(60, cacheItemName));
 
@@ -1052,9 +1049,8 @@ public class kenticoextensionshandler : IHttpHandler, IRequiresSessionState
         }
 
         var cacheItemName = string.Format("kenticoextensions|mediafileinfo|fileguid={0}&width={1}&height={2}", fileGUID.ToString(), width, height);
-
         if (refreshData)
-            CacheHelper.ClearCache(cacheItemName, false, false);
+            CacheHelper.TouchKey($"dummy|{cacheItemName}");
 
         contentResponse = CacheHelper.Cache(cs => GetMediaFileInfo(cs, fileGUID, width, height), new CacheSettings(60, cacheItemName));
 
@@ -1106,7 +1102,7 @@ public class kenticoextensionshandler : IHttpHandler, IRequiresSessionState
     {
         var cacheItemName = string.Format("kenticoextensions|sites");
         if (refreshData)
-            CacheHelper.ClearCache(cacheItemName, false, false);
+            CacheHelper.TouchKey($"dummy|{cacheItemName}");
 
         contentResponse = CacheHelper.Cache(cs => GetSites(cs), new CacheSettings(60, cacheItemName));
 
@@ -1149,7 +1145,7 @@ public class kenticoextensionshandler : IHttpHandler, IRequiresSessionState
     {
         var cacheItemName = string.Format("kenticoextensions|pagetypes");
         if (refreshData)
-            CacheHelper.ClearCache(cacheItemName, false, false);
+            CacheHelper.TouchKey($"dummy|{cacheItemName}");
 
         contentResponse = CacheHelper.Cache(cs => GetPageTypes(cs), new CacheSettings(60, cacheItemName));
 
@@ -1207,7 +1203,7 @@ public class kenticoextensionshandler : IHttpHandler, IRequiresSessionState
     {
         var cacheItemName = $"kenticoextensions|customtables";
         if (refreshData)
-            CacheHelper.ClearCache(cacheItemName, false, false);
+            CacheHelper.TouchKey($"dummy|{cacheItemName}");
 
         contentResponse = CacheHelper.Cache(cs => GetCustomTables(cs), new CacheSettings(60, cacheItemName));
 
@@ -1255,7 +1251,7 @@ public class kenticoextensionshandler : IHttpHandler, IRequiresSessionState
     {
         var cacheItemName = $"kenticoextensions|moduleclasses";
         if (refreshData)
-            CacheHelper.ClearCache(cacheItemName, false, false);
+            CacheHelper.TouchKey($"dummy|{cacheItemName}");
 
         contentResponse = CacheHelper.Cache(cs => GetModuleClasses(cs), new CacheSettings(60, cacheItemName));
 
@@ -1304,7 +1300,7 @@ public class kenticoextensionshandler : IHttpHandler, IRequiresSessionState
     {
         var cacheItemName = "kenticoextensions|databasetables";
         if (refreshData)
-            CacheHelper.ClearCache(cacheItemName, false, false);
+            CacheHelper.TouchKey($"dummy|{cacheItemName}");
 
         contentResponse = CacheHelper.Cache(cs => GetDatabaseTables(cs), new CacheSettings(60, cacheItemName));
 
@@ -1347,7 +1343,7 @@ public class kenticoextensionshandler : IHttpHandler, IRequiresSessionState
     {
         var cacheItemName = "kenticoextensions|databasetableschema";
         if (refreshData)
-            CacheHelper.ClearCache(cacheItemName, false, false);
+            CacheHelper.TouchKey($"dummy|{cacheItemName}");
 
         contentResponse = CacheHelper.Cache(cs => GetDatabaseTableSchema(cs), new CacheSettings(60, cacheItemName));
 
@@ -1398,7 +1394,7 @@ public class kenticoextensionshandler : IHttpHandler, IRequiresSessionState
     {
         var cacheItemName = $"kenticoextensions|classschema|classname~{customObjectPrefix}%";
         if (refreshData)
-            CacheHelper.ClearCache(cacheItemName, false, false);
+            CacheHelper.TouchKey($"dummy|{cacheItemName}");
 
         contentResponse = CacheHelper.Cache(cs => GetClassSchema(cs), new CacheSettings(60, cacheItemName));
 
@@ -1473,7 +1469,7 @@ public class kenticoextensionshandler : IHttpHandler, IRequiresSessionState
     {
         var cacheItemName = "kenticoextensions|settingkeys";
         if (refreshData)
-            CacheHelper.ClearCache(cacheItemName, false, false);
+            CacheHelper.TouchKey($"dummy|{cacheItemName}");
 
         contentResponse = CacheHelper.Cache(cs => GetSettingKeys(cs), new CacheSettings(60, cacheItemName));
 
@@ -1521,7 +1517,7 @@ public class kenticoextensionshandler : IHttpHandler, IRequiresSessionState
     {
         var cacheItemName = "kenticoextensions|forms";
         if (refreshData)
-            CacheHelper.ClearCache(cacheItemName, false, false);
+            CacheHelper.TouchKey($"dummy|{cacheItemName}");
 
         contentResponse = CacheHelper.Cache(cs => GetForms(cs), new CacheSettings(60, cacheItemName));
 
@@ -1613,7 +1609,7 @@ public class kenticoextensionshandler : IHttpHandler, IRequiresSessionState
     {
         var cacheItemName = $"kenticoextensions|mediafiles|siteid={SiteContext.CurrentSiteID}";
         if (refreshData)
-            CacheHelper.TouchKey(cacheItemName);
+            CacheHelper.TouchKey($"dummy|{cacheItemName}");
 
         contentResponse = CacheHelper.Cache(cs => GetMediaFiles(cs), new CacheSettings(60, cacheItemName));
 
@@ -1671,7 +1667,7 @@ public class kenticoextensionshandler : IHttpHandler, IRequiresSessionState
     {
         var cacheItemName = $"kenticoextensions|reports|reportname~{customReportsPrefix}%";
         if (refreshData)
-            CacheHelper.ClearCache(cacheItemName, false, false);
+            CacheHelper.TouchKey($"dummy|{cacheItemName}");
 
         contentResponse = CacheHelper.Cache(cs => GetReports(cs), new CacheSettings(60, cacheItemName));
 
@@ -1717,7 +1713,7 @@ public class kenticoextensionshandler : IHttpHandler, IRequiresSessionState
     {
         var cacheItemName = $"kenticoextensions|treedata|siteid={SiteContext.CurrentSiteID}";
         if (refreshData)
-            CacheHelper.ClearCache(cacheItemName, false, false);
+            CacheHelper.TouchKey($"dummy|{cacheItemName}");
 
         contentResponse = CacheHelper.Cache(cs => GetTreeData(cs), new CacheSettings(60, cacheItemName));
 
@@ -1848,27 +1844,28 @@ public class kenticoextensionshandler : IHttpHandler, IRequiresSessionState
         htmlOutput.Append(getEnpointRow(baseURL, "configuration"));
         htmlOutput.Append(getEnpointRow(baseURL, "treeinfo"));
         htmlOutput.Append(getEnpointRow(baseURL, "documentinfo", "nodeid"));
-
         htmlOutput.Append(getEnpointRow(baseURL, "settingsbycategoryname", "categoryname, recursive"));
-
         htmlOutput.Append(getEnpointRow(baseURL, "shortcutbaritems"));
         htmlOutput.Append(getEnpointRow(baseURL, "userroles"));
-
         htmlOutput.Append(getEnpointRow(baseURL, "stagingtasks", "serverid"));
         htmlOutput.Append(getEnpointRow(baseURL, "stagingusers", "serverid"));
         htmlOutput.Append(getEnpointRow(baseURL, "mediafileinfo", "fileguid, width, height"));
-
+        htmlOutput.Append(getEnpointRow(baseURL, "sites"));
         htmlOutput.Append(getEnpointRow(baseURL, "pagetypes"));
         htmlOutput.Append(getEnpointRow(baseURL, "customtables"));
         htmlOutput.Append(getEnpointRow(baseURL, "moduleclasses"));
+        htmlOutput.Append(getEnpointRow(baseURL, "forms"));
+
         htmlOutput.Append(getEnpointRow(baseURL, "databasetables"));
         htmlOutput.Append(getEnpointRow(baseURL, "databasetableschema"));
         htmlOutput.Append(getEnpointRow(baseURL, "classschema"));
         htmlOutput.Append(getEnpointRow(baseURL, "settingkeys"));
+        htmlOutput.Append(getEnpointRow(baseURL, "executequery"));
         htmlOutput.Append(getEnpointRow(baseURL, "mediafiles"));
         htmlOutput.Append(getEnpointRow(baseURL, "reports"));
+        htmlOutput.Append(getEnpointRow(baseURL, "treedata"));
+        htmlOutput.Append(getEnpointRow(baseURL, "stageobject", "objecttype, objectid"));
 
-        htmlOutput.Append(getEnpointRow(baseURL, "executequery", "query"));
 
         htmlOutput.Append("</tbody>");
         htmlOutput.Append("</table>");
@@ -1943,7 +1940,7 @@ public class kenticoextensionshandler : IHttpHandler, IRequiresSessionState
             cacheListContentResponse = new ContentResponse("data=cachelist", cacheItemName, cacheStatuses);
         }
 
-        CacheHelper.TouchKey(cacheItemName);
+        CacheHelper.TouchKey($"dummy|{cacheItemName}");
 
         var cacheKeyList = new List<string>();
         cacheKeyList.Add("dummy|kenticoextensions");
