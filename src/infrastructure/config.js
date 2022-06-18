@@ -24,13 +24,16 @@ export function getAppConfig() {
 
 export function setAppConfig(newConfig) {
   config.Enabled = newConfig.Enabled;
+  config.ConsoleLogging = newConfig.ConsoleLogging || config.ConsoleLogging;
+  config.CacheListRefreshFrequency =
+    newConfig.CacheListRefreshFrequency || config.CacheListRefreshFrequency;
+
   config.EnabledUserNames =
     newConfig.EnabledUserNames || config.EnabledUserNames;
   config.DisabledUserNames =
     newConfig.DisabledUserNames || config.DisabledUserNames;
+
   config.Extensions = newConfig.Extensions || config.Extensions;
-  config.CacheListRefreshFrequency =
-    newConfig.CacheListRefreshFrequency || config.CacheListRefreshFrequency;
 }
 
 /**
