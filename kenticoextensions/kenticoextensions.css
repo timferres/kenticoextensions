@@ -101,12 +101,11 @@
     text-align: center;
 }
 
-.kentico-extensions-nav-bar-inner-label {
-    font-weight: bold;
-    font-size: 14px;
-    display: inline-block;
-    padding: 4px 8px 4px 8px;
-    background-color: #ffffff;
+.ke-ms-label {
+  display: inline;
+  position: absolute;
+  font-size: 12px;
+  margin-left: 6px;
 }
 
 .ke-ms-label { display: inline; position: absolute; font-size: 12px; }
