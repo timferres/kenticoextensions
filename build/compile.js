@@ -64,8 +64,24 @@ function copyFolder() {
 }
 
 function getDateTimeStamp() {
-  var dateTimeString = new Date().toISOString();
-  var dateTimeStamp =
-    dateTimeString.substring(0, 10) + ' ' + dateTimeString.substring(11, 19);
-  return dateTimeStamp;
+  var cdt = new Date();
+  var hours = cdt.getHours();
+  var ampm = hours >= 12 ? 'PM' : 'AM';
+  if (hours > 12) {
+    hours = hours - 12;
+  }
+  var cdts =
+    cdt.getFullYear() +
+    '-' +
+    ('0' + (cdt.getMonth() + 1)).slice(-2) +
+    '-' +
+    ('0' + cdt.getDate()).slice(-2) +
+    ' ' +
+    ('0' + hours).slice(-2) +
+    ':' +
+    ('0' + cdt.getMinutes()).slice(-2) +
+    ':' +
+    ('0' + cdt.getSeconds()).slice(-2);
+  cdts += ' ' + ampm;
+  return cdts;
 }
