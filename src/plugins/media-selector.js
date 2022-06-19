@@ -7,9 +7,7 @@ import { getQueryStringValue } from '../utilities/url';
 Extension: Media Selector (ms)
 Description: Adds the selected images dimensions and file size as a label next to the thumbnail
 */
-document.addEventListener('ke_init_complete', initialize, false);
-
-async function initialize() {
+export function initialize() {
   const mediaSelectors = document.querySelectorAll('.media-selector-image');
   if (!mediaSelectors.length) {
     return;
@@ -23,9 +21,10 @@ async function initialize() {
 
   const mutationObserver = new MutationObserver(function (mutations) {
     mutations.forEach(function (mutation) {
+      const testMutation = mutation;
       if (
-        mutation.addedNodes.length == 1 &&
-        mutation.addedNodes[0].id != undefined &&
+        mutation.addedNodes.length === 1 &&
+        mutation.addedNodes[0].id !== undefined &&
         mutation.addedNodes[0].id.indexOf('mediaSelector') > 0
       ) {
         ke_ms_addImageSizeLabel(mutation.target);
@@ -33,58 +32,75 @@ async function initialize() {
     });
   });
 
-  for (const i = 0; i < mediaSelectors.length; i++) {
-    const ms = mediaSelectors[i];
-
+  mediaSelectors.forEach(async function (ms) {
     await ke_ms_addImageSizeLabel(ms);
+  });
 
+  // If the mutation observer observe method is called within an async function
+  // the mutations will not be raised. Not sure why, but given the mutation
+  // observer works asynchronously, this probably has something to do with it
+  // TODO: research more on mutation observers and async :)
+  mediaSelectors.forEach(function (ms) {
     mutationObserver.observe(ms, { childList: true });
-  }
+  });
 }
 
-/**
- *
- * @param {HTMLElement} ms
- * @returns {Promise<void>}
- */
 async function ke_ms_addImageSizeLabel(ms) {
   ms = ms.parentNode;
-  const msinput = ms.querySelectorAll('input')[0];
-  const imageurl = msinput.value;
-  let msimage = ms.querySelectorAll('img')[0];
+  const msinput = ms.querySelector('input');
+  if (msinput.value === '') {
+    return;
+  }
+  const imageurl = msinput.value.replaceAll('&amp;', '&');
+  let msimage = ms.querySelector('img');
   if (!msimage) {
     return;
   }
 
-  const fileguid = imageurl.substr(imageurl.indexOf('getmedia/') + 9, 36);
+  const fileguid = imageurl
+    .replace('~/getmedia/', '')
+    .replace('/getmedia/', '')
+    .substring(0, 36);
   const width = getQueryStringValue('width', imageurl);
   const height = getQueryStringValue('height', imageurl);
 
-  const mediafile = await get({
+  const mediaFile = await get({
     data: 'mediafileinfo',
     fileguid,
     width,
     height,
   });
 
-  const imagedimensions = mediafile.Width + 'x' + mediafile.Height;
-  const labeltext =
-    imagedimensions + ' (' + ke_formatBytes(mediafile.Size) + ')';
+  const imagedimensions = `${mediaFile.Width} x ${mediaFile.Height}`;
+  const bytes = ke_formatBytes(mediaFile.Size);
+  const sizehtml = `<br><b>Size:</b> ${imagedimensions} (${bytes})`;
+  const titlehtml =
+    mediaFile.Title !== '' ? `<br><b>Title:</b> ${mediaFile.Title}` : '';
+  const deschtml =
+    mediaFile.Description !== ''
+      ? `<br><b>Alt Text:</b> ${mediaFile.Description}`
+      : '';
 
-  msimage = document.querySelectorAll(`img[src*="${mediafile.GUID}"]`)[0]
-    .parentNode;
+  msimage = document.querySelector(`img[src*="${mediaFile.GUID}"]`).parentNode;
 
-  const allLabels = msimage.querySelectorAll('.ke-ms-label');
+  const mslabel = msimage.querySelector('.ke-ms-label');
 
-  const mslabel =
-    allLabels.length > 0
-      ? msimage.querySelectorAll('.ke-ms-label')[0]
-      : undefined;
-
+  const labelhtmk = sizehtml + titlehtml + deschtml;
   // use create element and append to dom
   if (mslabel) {
-    mslabel.innerHTML = labeltext;
-  } else {
-    msimage.innerHTML += `&nbsp<div class="ke-ms-label" title="Information provided by Kentico Extensions :)">${labeltext}</div>`;
+    mslabel.innerHTML = labelhtmk;
+    return;
   }
+  const labelElement = document.createElement('div');
+  labelElement.id = mediaFile.GUID;
+  labelElement.className = 'ke-ms-label';
+  labelElement.title = 'Information provided by Kentico Extensions :)';
+  labelElement.innerHTML = labelhtmk;
+  msimage.appendChild(labelElement);
+}
+
+// This extension method could be placed into a utility module
+// Given it is small and only used once, it can remain here for now
+function replaceAll(str, find, replace) {
+  return str.replace(new RegExp(find, 'g'), replace);
 }
