@@ -46,6 +46,12 @@ export function isCMSDeskFrame() {
   );
 }
 
+export function isCMSDashboard() {
+  return window.location.href.includes(
+    '/CMSModules/ApplicationDashboard/ApplicationDashboard.aspx'
+  );
+}
+
 export function isStagingFrame() {
   return (
     window.location.href.includes(

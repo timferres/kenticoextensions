@@ -1,4 +1,4 @@
-import { getAppConfig } from '../infrastructure/config';
+import { getAppConfig, getExtensionConfig } from '../infrastructure/config';
 
 export function ke_log(message, outputpathname) {
   const { ConsoleLogging } = getAppConfig();
@@ -13,7 +13,7 @@ export function ke_log(message, outputpathname) {
     var extCodeStart = callingFunction.indexOf('_') + 1;
     var extCodeEnd = callingFunction.substr(extCodeStart).indexOf('_');
     var extCode = callingFunction.substr(extCodeStart, extCodeEnd);
-    var extConfig = ke_getExtensionConfiguration(extCode);
+    var extConfig = getExtensionConfig(extCode);
     if (extConfig != undefined && extConfig.ConsoleLogging == false) {
       return;
     }

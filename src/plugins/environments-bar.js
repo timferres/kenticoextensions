@@ -1,27 +1,22 @@
 import { getExtensionConfig } from '../infrastructure/config';
+import { isCMSRootIFrame } from '../utilities/dom';
 
 /* 
 Extension: Environment Bar (eb)
 Description: Adds a coloured bar to indicate the current environment
 */
 export function initialize() {
-  const masterContainer = document.querySelectorAll('.CMSDeskContent')[0];
+  const masterContainer = isCMSRootIFrame();
   if (!masterContainer) {
     return;
   }
 
   const extConfig = getExtensionConfig('eb');
-
-  if (!extConfig.Enabled) {
-    return;
-  }
-
-  if (!extConfig.Config) {
+  if (!extConfig.Enabled || !extConfig.Config) {
     return;
   }
 
   const envConfig = getCurrentEnvironmentConfig(extConfig);
-
   if (!envConfig) {
     return;
   }
