@@ -49,8 +49,12 @@ function onRebuild(error, _result) {
 }
 
 const cmsdir = process.env.CMSDIR;
+const copytodmsdir = process.env.COPYTOCMSDIR;
 
 function copyFolder() {
+  if (!copytodmsdir) {
+    return;
+  }
   const srcDir = './kenticoextensions';
   const destDir = cmsdir + '/kenticoextensions';
   fse
