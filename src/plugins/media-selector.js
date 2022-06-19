@@ -7,7 +7,7 @@ import { getQueryStringValue } from '../utilities/url';
 Extension: Media Selector (ms)
 Description: Adds the selected images dimensions and file size as a label next to the thumbnail
 */
-export async function initialize() {
+export function initialize() {
   const mediaSelectors = document.querySelectorAll('.media-selector-image');
   if (!mediaSelectors.length) {
     return;
@@ -36,16 +36,15 @@ export async function initialize() {
     await ke_ms_addImageSizeLabel(ms);
   });
 
+  // If the mutation observer observe method is called within an async function
+  // the mutations will not be raised. Not sure why, but given the mutation
+  // observer works asynchronously, this probably has something to do with it
+  // TODO: research more on mutation observers and async :)
   mediaSelectors.forEach(function (ms) {
     mutationObserver.observe(ms, { childList: true });
   });
 }
 
-/**
- *
- * @param {HTMLElement} ms
- * @returns {Promise<void>}
- */
 async function ke_ms_addImageSizeLabel(ms) {
   ms = ms.parentNode;
   const msinput = ms.querySelector('input');
@@ -72,7 +71,7 @@ async function ke_ms_addImageSizeLabel(ms) {
     height,
   });
 
-  const imagedimensions = mediaFile.Width + 'x' + mediaFile.Height;
+  const imagedimensions = `${mediaFile.Width} x ${mediaFile.Height}`;
   const bytes = ke_formatBytes(mediaFile.Size);
   const sizehtml = `<br><b>Size:</b> ${imagedimensions} (${bytes})`;
   const titlehtml =
@@ -100,6 +99,8 @@ async function ke_ms_addImageSizeLabel(ms) {
   msimage.appendChild(labelElement);
 }
 
+// This extension method could be placed into a utility module
+// Given it is small and only used once, it can remain here for now
 function replaceAll(str, find, replace) {
   return str.replace(new RegExp(find, 'g'), replace);
 }
