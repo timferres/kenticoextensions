@@ -1,5 +1,7 @@
 using CMS.Base;
+using CMS.CustomTables;
 using CMS.DataEngine;
+using CMS.DocumentEngine;
 using CMS.EventLog;
 using CMS.Helpers;
 using CMS.Localization;
@@ -193,6 +195,9 @@ public class kenticoextensionshandler : IHttpHandler, IRequiresSessionState
                 break;
             case "treedata":
                 ProcessGetTreeData();
+                break;
+            case "stageobject":
+                ProcessStageObject();
                 break;
 
             // OTHER ENDPOINTS
@@ -893,6 +898,101 @@ public class kenticoextensionshandler : IHttpHandler, IRequiresSessionState
         }
 
         return contentResponse;
+    }
+
+    private void ProcessStageObject()
+    {
+        var objectType = "";
+        if (GetStringParam("objecttype", ref objectType) == false)
+        {
+            WriteResponse(500, "Query string parameter objecttype is required.");
+            return;
+        }
+
+        var objectID = 0;
+        if (GetIntParam("objectid", ref objectID) == false)
+        {
+            WriteResponse(500, "Query string parameter objectid is required.");
+            return;
+        }
+
+        var objectUpdated = false;
+
+        // if object type is Custom Table or Page Type
+        if (objectType == DataClassInfo.OBJECT_TYPE || objectType == CustomTableInfo.OBJECT_TYPE_CUSTOMTABLE || objectType == DocumentTypeInfo.OBJECT_TYPE_DOCUMENTTYPE)
+        {
+            var dataClassInfo = DataClassInfoProvider.GetDataClassInfo(objectID);
+            if (dataClassInfo != null)
+            {
+                dataClassInfo.Update();
+                objectUpdated = true;
+            }
+        }
+
+        if (objectType == SettingsKeyInfo.OBJECT_TYPE)
+        {
+            var settingKeyInfo = SettingsKeyInfoProvider.GetSettingsKeyInfo(objectID);
+            if (settingKeyInfo != null)
+            {
+                settingKeyInfo.Update();
+                objectUpdated = true;
+            }
+        }
+
+        if (objectType == BizFormInfo.OBJECT_TYPE)
+        {
+            var formInfo = BizFormInfoProvider.GetBizFormInfo(objectID);
+            if (formInfo != null)
+            {
+                formInfo.Update();
+                objectUpdated = true;
+            }
+        }
+
+        if (objectType == ReportInfo.OBJECT_TYPE)
+        {
+            var reportInfo = ReportInfoProvider.GetReportInfo(objectID);
+            if (reportInfo != null)
+            {
+                reportInfo.Update();
+                objectUpdated = true;
+            }
+        }
+
+        if (objectType == RoleInfo.OBJECT_TYPE)
+        {
+            var roleInfo = RoleInfoProvider.GetRoleInfo(objectID);
+            if (roleInfo != null)
+            {
+                roleInfo.Update();
+                objectUpdated = true;
+            }
+        }
+
+        if (objectType == UserInfo.OBJECT_TYPE)
+        {
+            var userInfo = UserInfoProvider.GetUserInfo(objectID);
+            if (userInfo != null)
+            {
+                userInfo.Update();
+                objectUpdated = true;
+            }
+        }
+
+        if (!objectUpdated)
+        {
+            WriteResponse(400, $"Object of type {objectType} with ID {objectID} could not be found or updated.");
+            return;
+        }
+    }
+
+    private List<ServerInfo> getEnabledServers(CacheSettings cs)
+    {
+        if (cs.Cached)
+        {
+            cs.CacheDependency = CacheHelper.GetCacheDependency("staging.server|all");
+        }
+        return ServerInfo.Provider.Get().Where(s => s.ServerEnabled).ToList();
     }
 
     private void ProcessStagingTasks()
