@@ -9,9 +9,25 @@ export function getQueryStringValue(name, url) {
     url = window.location.href;
   }
 
-  const params = new URLSearchParams(new URL(url).search);
+  const urlobj = getURL(url);
+  if (!urlobj) {
+    return null;
+  }
+  const urlsearch = urlobj.search;
+  const params = new URLSearchParams(urlsearch);
 
   return params.get(name);
+}
+
+function getURL(value) {
+  try {
+    if (value.startsWith('http')) {
+      return new URL(value);
+    }
+    return new URL(value, document.baseURI);
+  } catch (_) {
+    return null;
+  }
 }
 
 export function isLoginPage() {
@@ -27,6 +43,12 @@ export function isPageInfoFrame() {
 export function isCMSDeskFrame() {
   return window.location.href.includes(
     '/CMSModules/Content/CMSDesk/Default.aspx'
+  );
+}
+
+export function isCMSDashboard() {
+  return window.location.href.includes(
+    '/CMSModules/ApplicationDashboard/ApplicationDashboard.aspx'
   );
 }
 
