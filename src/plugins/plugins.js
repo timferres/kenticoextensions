@@ -4,6 +4,7 @@ import { initialize as treeInformation } from './tree-information';
 import { initialize as staginTasks } from './staging-tasks';
 import { initialize as shortcutsBar } from './shortcuts-bar';
 import { initialize as mediaSelector } from './media-selector';
+import { initialize as uiRestrictions } from './ui-restrictions';
 
 export function initializePlugins() {
   environmentsBar();
@@ -12,4 +13,5 @@ export function initializePlugins() {
   staginTasks();
   shortcutsBar();
   mediaSelector();
+  uiRestrictions();
 }
