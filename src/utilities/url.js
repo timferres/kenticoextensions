@@ -66,3 +66,11 @@ export function isStagingFrame() {
     window.location.href.includes('/CMSModules/Staging/Tools/Data/Tasks.aspx')
   );
 }
+
+export function isEventLog() {
+  return window.location.href.includes('EventLog.aspx');
+}
+
+export function isMediaLibraryList() {
+  return window.location.href.includes('Library_List.aspx');
+}
