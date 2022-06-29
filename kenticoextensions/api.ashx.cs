@@ -494,7 +494,8 @@ public class kenticoextensionshandler : IHttpHandler, IRequiresSessionState
         var treeItemList = new List<TreeItem>();
 
         GeneralConnection gc = ConnectionHelper.GetConnection();
-        string queryString = @"SELECT T.NodeName, T.NodeID, T.NodeGUID, T.NodeAliasPath, 
+        string queryString = @"SELECT T.NodeName, T.NodeID, T.NodeGUID, T.NodeAliasPath,  
+                                D.DocumentID, D.DocumentGUID,
                                 C.ClassDisplayName, C.ClassName,
                                 PTC.PageTemplateConfigurationName AS PageTemplateDisplayName,
                                 JSON_VALUE(IIF(d.DocumentPageTemplateConfiguration = '', NULL, d.DocumentPageTemplateConfiguration), '$.identifier') AS PageTemplateCodeName
@@ -2257,6 +2258,8 @@ namespace KenticoExtensions.Models
             NodeID = (int)dr["NodeID"];
             NodeGUID = (Guid)dr["NodeGUID"];
             NodeAliasPath = dr["NodeAliasPath"].ToString();
+            DocumentID = (int)dr["DocumentID"];
+            DocumentGUID = (Guid)dr["DocumentGUID"];
             ClassDisplayName = dr["ClassDisplayName"].ToString();
             ClassName = dr["ClassName"].ToString();
             PageTemplateDisplayName = dr["PageTemplateDisplayName"].ToString();
@@ -2268,6 +2271,8 @@ namespace KenticoExtensions.Models
         public int NodeID { get; set; }
         public Guid NodeGUID { get; set; }
         public string NodeAliasPath { get; set; }
+        public int DocumentID { get; set; }
+        public Guid DocumentGUID { get; set; }
         public string ClassDisplayName { get; set; }
         public string ClassName { get; set; }
         public string PageTemplateDisplayName { get; set; }
